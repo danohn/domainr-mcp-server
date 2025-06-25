@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "domainr-mcp-server"
-version = "0.1.0"
+version = "0.1.1"
 authors = [
     {name = "Daniel Ohnesorge", email = "82357071+danohn@users.noreply.github.com"},
 ]
