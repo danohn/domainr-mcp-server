@@ -48,8 +48,8 @@ class DomainrClient:
             response.raise_for_status()
             return response.json()
 
-    async def check_status(self, domains: str) -> Dict[str, Any]:
-        """Check the status of one or more domains."""
+    async def check_status(self, domain: str) -> Dict[str, Any]:
+        """Check the status of a single domain."""
         if not self.api_key:
             raise ValueError("Domainr API key is required")
 
@@ -57,7 +57,7 @@ class DomainrClient:
             response = await client.get(
                 f"{self.base_url}/status",
                 headers=self.headers,
-                params={"domain": domains},
+                params={"domain": domain},
             )
             response.raise_for_status()
             return response.json()
@@ -122,16 +122,16 @@ async def handle_list_tools() -> List[types.Tool]:
         ),
         types.Tool(
             name="check_domain_status",
-            description="Check the availability status of one or more domains",
+            description="Check the availability status of a single domain",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "domains": {
+                    "domain": {
                         "type": "string",
-                        "description": "Comma-separated list of domain names to check",
+                        "description": "Domain name to check (e.g. 'example.com')",
                     }
                 },
-                "required": ["domains"],
+                "required": ["domain"],
             },
         ),
         types.Tool(
