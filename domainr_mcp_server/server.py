@@ -1,5 +1,7 @@
 import asyncio
 import os
+import signal
+import sys
 from typing import Any, Dict, List, Optional
 import httpx
 from mcp.server.models import InitializationOptions
@@ -269,25 +271,45 @@ async def handle_call_tool(
 
 
 async def run_server():
-    # Run the server using stdin/stdout streams
-    async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
-        await server.run(
-            read_stream,
-            write_stream,
-            InitializationOptions(
-                server_name="domainr-server",
-                server_version="0.1.0",
-                capabilities=server.get_capabilities(
-                    notification_options=NotificationOptions(),
-                    experimental_capabilities={},
+    """Run the MCP server using stdin/stdout streams."""
+    try:
+        async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
+            await server.run(
+                read_stream,
+                write_stream,
+                InitializationOptions(
+                    server_name="domainr-server",
+                    server_version="0.1.0",
+                    capabilities=server.get_capabilities(
+                        notification_options=NotificationOptions(),
+                        experimental_capabilities={},
+                    ),
                 ),
-            ),
-        )
+            )
+    except KeyboardInterrupt:
+        # Handle Ctrl+C gracefully
+        print("Server shutdown requested", file=sys.stderr)
+    except Exception as e:
+        print(f"Server error: {e}", file=sys.stderr)
+        raise
 
 
 def main():
     """Entry point for the MCP server."""
-    asyncio.run(run_server())
+
+    # Set up signal handlers for graceful shutdown
+    def signal_handler(signum, frame):
+        print("Received shutdown signal", file=sys.stderr)
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
+    try:
+        asyncio.run(run_server())
+    except KeyboardInterrupt:
+        print("Server stopped", file=sys.stderr)
+        sys.exit(0)
 
 
 if __name__ == "__main__":
