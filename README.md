@@ -157,7 +157,7 @@ Assistant:
 
 ### Local Development
 ```bash
-git clone https://github.com/yourusername/domainr-mcp-server
+git clone https://github.com/danohn/domainr-mcp-server
 cd domainr-mcp-server
 
 # Create virtual environment
